@@ -39,7 +39,14 @@ namespace MatchGame
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            tenthsOfSecondsElapsed++;
+            timeTextBlock.Text = (tenthsOfSecondsElapsed / 10F).ToString("0.0s");
+
+            if (matchesFound == 8)
+            {
+                timer.Stop();
+                timeTextBlock.Text = timeTextBlock.Text + " - Play again?";
+            }
         }
 
         private void SetUpGame()
@@ -60,12 +67,18 @@ namespace MatchGame
 
             foreach (TextBlock textBlock in mainGrid.Children.OfType<TextBlock>())
             {
-                int index = random.Next(animalEmoji.Count);
-                string nextEmoji = animalEmoji[index];
-                textBlock.Text = nextEmoji;
-                animalEmoji.RemoveAt(index);
+                if (textBlock.Name != "timeTextBlock")
+                {
+                    int index = random.Next(animalEmoji.Count);
+                    string nextEmoji = animalEmoji[index];
+                    textBlock.Text = nextEmoji;
+                    textBlock.Visibility = Visibility.Visible;
+                    animalEmoji.RemoveAt(index);
+                }
             }
-
+            timer.Start();
+            tenthsOfSecondsElapsed = 0;
+            matchesFound = 0;
         }
 
         TextBlock lastTextBlockClicked;
@@ -83,6 +96,7 @@ namespace MatchGame
             }
             else if (textBlock.Text == lastTextBlockClicked.Text)
             {
+                matchesFound++;
                 textBlock.Visibility = Visibility.Hidden;
                 findingMatch = false;
             }
@@ -90,6 +104,14 @@ namespace MatchGame
             {
                 lastTextBlockClicked.Visibility = Visibility.Visible;
                 findingMatch = false;
+            }
+        }
+
+        private void timeTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (matchesFound == 8)
+            {
+                SetUpGame();
             }
         }
     }
